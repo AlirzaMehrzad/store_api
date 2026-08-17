@@ -1,0 +1,13 @@
+package com.alirezamehrzad.store.validation;
+
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+
+public class LowercaseValidator implements ConstraintValidator<Lowercase, String> {
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext constraint){
+        if(value == null) return true;
+        return value.equals(value.toLowerCase());
+    }
+}
