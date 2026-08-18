@@ -17,9 +17,9 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Byte id;
+    private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
 
     @OneToMany(mappedBy = "category")
@@ -29,7 +29,7 @@ public class Category {
         this.name = name;
     }
 
-    public Category(byte id) {
+    public Category(long id) {
         this.id = id;
     }
 }
