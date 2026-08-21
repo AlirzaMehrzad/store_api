@@ -3,6 +3,7 @@ package com.alirezamehrzad.store.controllers;
 import com.alirezamehrzad.store.dtos.CategoryDto;
 import com.alirezamehrzad.store.mappers.CategoryMapper;
 import com.alirezamehrzad.store.repositories.CategoryRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,7 @@ public class CategoryController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<CategoryDto> createCategory(
-            @RequestBody CategoryDto request
+            @Valid @RequestBody CategoryDto request
     ){
         var category = categoryMapper.toEntity(request);
         var savedCategory = categoryRepository.save(category);
