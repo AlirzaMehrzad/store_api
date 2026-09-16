@@ -1,12 +1,10 @@
 package com.alirezamehrzad.store.controllers;
 
-import com.alirezamehrzad.store.dtos.ChangePasswordRequest;
-import com.alirezamehrzad.store.dtos.RegisterUserRequest;
-import com.alirezamehrzad.store.dtos.UpdateUserRequest;
-import com.alirezamehrzad.store.dtos.UserDto;
+import com.alirezamehrzad.store.dtos.*;
 import com.alirezamehrzad.store.entities.Role;
 import com.alirezamehrzad.store.mappers.UserMapper;
 import com.alirezamehrzad.store.repositories.UserRepository;
+import com.alirezamehrzad.store.services.EmailService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -15,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.alirezamehrzad.store.config.RabbitConfig;
 
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +26,8 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final RabbitTemplate rabbitTemplate;
 
     @GetMapping
     public Iterable<UserDto> getAllUsers(
@@ -68,6 +70,14 @@ public class UserController {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
         userRepository.save(user);
+
+        // Instantly drop the email address into the RabbitMQ queue and move on
+        EmailMessageDto welcomeEmail = new EmailMessageDto(
+                user.getEmail(),
+                "Welcome to our Store!",
+                "Thank you for registering, " + user.getName() + "!"
+        );
+        rabbitTemplate.convertAndSend(RabbitConfig.EMAIL_QUEUE, welcomeEmail);
 
         var userDto = userMapper.toDto(user);
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();

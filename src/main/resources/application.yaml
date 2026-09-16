@@ -12,3 +12,15 @@ spring:
     secret: ${JWT_SECRET}
     accessTokenExpiration: 900 #15m
     refreshTokenExpiration: 604800 #7d
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: alirza.mehrzad@gmail.com
+    password: ocpyutagbtfyvmvy   # Paste your 16-letter App Password here (no spaces)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
