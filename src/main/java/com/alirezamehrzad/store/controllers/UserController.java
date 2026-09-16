@@ -115,7 +115,7 @@ public class UserController {
     @PostMapping("/{id}/change-password")
     public ResponseEntity<Void> changePassword(
             @PathVariable Long id,
-            @RequestBody ChangePasswordRequest request
+            @Valid @RequestBody ChangePasswordRequest request
 
     ) {
         var user = userRepository.findById(id).orElse(null);
@@ -123,12 +123,19 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        if(!user.getPassword().equals(request.getOldPassword())){
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        user.setPassword(request.getNewPassword());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        EmailMessageDto changePasswordEmail = new EmailMessageDto(
+          user.getEmail(),
+                "Password Changed",
+                "Your password has been changed successfully."
+        );
+        rabbitTemplate.convertAndSend(RabbitConfig.EMAIL_QUEUE, changePasswordEmail);
 
         return ResponseEntity.noContent().build();
     }
