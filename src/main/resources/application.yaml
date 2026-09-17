@@ -2,25 +2,35 @@ spring:
   application:
     name: store
   datasource:
-    url: jdbc:mysql://localhost:3306/store_api?createDatabaseIfNotExist=true
-    username: root
-    password: 8323
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  redis:
+    port: 6379
+
   jpa:
     show-sql: true
 
   jwt:
     secret: ${JWT_SECRET}
-    accessTokenExpiration: 900 #15m
+    accessTokenExpiration: 3600 #1h
     refreshTokenExpiration: 604800 #7d
+
+
 
   mail:
     host: smtp.gmail.com
     port: 587
-    username: alirza.mehrzad@gmail.com
-    password: ocpyutagbtfyvmvy   # Paste your 16-letter App Password here (no spaces)
+    username: ${EMAIL}
+    password: ${EMAIL_PASSWORD}   # Paste your 16-letter App Password here (no spaces)
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
