@@ -14,16 +14,17 @@ spring:
 
   jwt:
     secret: ${JWT_SECRET}
-    accessTokenExpiration: 3600 #1h
+    accessTokenExpiration: 7200 #2h
     refreshTokenExpiration: 604800 #7d
 
-
+  rate-limiter:
+    enabled: true
 
   mail:
     host: smtp.gmail.com
     port: 587
     username: ${EMAIL}
-    password: ${EMAIL_PASSWORD}   # Paste your 16-letter App Password here (no spaces)
+    password: ${EMAIL_PASSWORD}
     properties:
       mail:
         smtp:

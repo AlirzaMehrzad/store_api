@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,19 @@ import java.io.IOException;
 @Component
 @AllArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE) // before Spring Security
+@ConditionalOnProperty(name = "spring.rate-limiter.enabled", havingValue = "true", matchIfMissing = true)
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitingService rateLimitingService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+
+        // Skip rate limiter for all paths EXCEPT sensitive ones like /login or /register
+        // Return TRUE to bypass the filter, FALSE to enforce rate limiting
+        return path.startsWith("/products");
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
